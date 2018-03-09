@@ -653,6 +653,8 @@ class MntResource : public Resource
 
         // member variables for path: "/mnt"
         bool m_var_value_fr; // the value for the attribute "fr": Factory Reset
+        
+        bool m_var_value_fr_thread; // the value for the attribute "fr": Factory Reset
         std::string m_var_name_fr = "fr"; // the name for the attribute "fr" 
         std::vector<std::string>  m_var_value_rt; // the value for the array attribute "rt": Resource Type of the Resource
         std::string m_var_name_rt = "rt"; // the name for the attribute "rt" 
@@ -761,6 +763,13 @@ MntResource::~MntResource()
 OCRepresentation MntResource::get(QueryParamsMap queries)
 {
     OC_UNUSED(queries);
+    
+    if ( m_var_value_rb == true)
+    {
+        std::cout << "\t\t" << "resetting property 'rb' :"<< m_var_value_rb << std::endl;
+        m_var_value_rb = false;
+    }
+    
     std::cout << "\t\t" << "property 'fr' : "<< m_var_value_fr << std::endl;
     m_rep.setValue(m_var_name_fr, m_var_value_fr ); 
     m_rep.setValue(m_var_name_rt,  m_var_value_rt ); 
@@ -898,7 +907,8 @@ OCEntityHandlerResult MntResource::post(QueryParamsMap queries, const OCRepresen
             bool temp;
             if (rep.getValue(m_var_name_fr, temp ))
             {
-                m_var_value_fr = temp;
+                //m_var_value_fr = temp;
+                m_var_value_fr_thread = temp;
                 std::cout << "\t\t" << "property 'fr' UPDATED: " << ((m_var_value_fr) ? "true" : "false") << std::endl;
                 m_send_notification_flag = true;
             }
@@ -1182,6 +1192,14 @@ void MntResource::notifyObservers(void)
 
             OCPlatform::notifyAllObservers(this->m_resourceHandle);
         }
+        if (m_var_value_fr)
+        {
+            for(int i=0;i<100;i++)
+                std::cout << "factory reset: sleeping" << std::endl;
+            //sleep(1);
+            std::cout << "factory reset" << std::endl;
+            exit (-1);
+        }
     }
 }
 
@@ -1376,6 +1394,34 @@ NmonResource::~NmonResource()
 OCRepresentation NmonResource::get(QueryParamsMap queries)
 {
     OC_UNUSED(queries);
+    
+    if (m_var_value_col == true)
+    {
+        std::cout << "\t\t start collecting " << std::endl;
+        m_var_value_rx++;
+        m_var_value_amsrx++;
+        m_var_value_mmsrx++;
+        
+        m_var_value_tx++;
+        m_var_value_amstx++;
+        m_var_value_mmstx++;
+    }
+    if (m_var_value_reset == true)
+    {
+        
+        std::cout << "\t\t reset " << std::endl;
+        m_var_value_rx=0;
+        m_var_value_amsrx=0;
+        m_var_value_mmsrx=0;
+        
+        m_var_value_tx=0;
+        m_var_value_amstx=0;
+        m_var_value_mmstx=0;
+        m_var_value_reset = false;
+    }
+    
+    
+    
     m_rep.setValue(m_var_name_rt,  m_var_value_rt ); 
     std::cout << "\t\t" << "property 'tx' : "<< m_var_value_tx << std::endl;
     m_rep.setValue(m_var_name_tx, m_var_value_tx ); 
