@@ -1133,12 +1133,18 @@ OCEntityHandlerResult MntResource::entityHandler(std::shared_ptr<OCResourceReque
                     if (ehResult == OC_EH_OK)
                     {
                         pResponse->setResourceRepresentation(get(queries), "");
+                        if (OC_STACK_OK == OCPlatform::sendResponse(pResponse))
+                        {
+                            //if (OC_STACK_OK != sendNotification() )
+                            //{
+                            //    std::cerr << "NOTIFY failed." << std::endl;
+                            //}
+                        }
                     }
                     else
                     {
                          pResponse->setResponseResult(OCEntityHandlerResult::OC_EH_ERROR);
                     }
-                    OC_VERIFY(OCPlatform::sendResponse(pResponse) == OC_STACK_OK);
                 }
             }
             else
@@ -1192,7 +1198,7 @@ void MntResource::notifyObservers(void)
 
             OCPlatform::notifyAllObservers(this->m_resourceHandle);
         }
-        if (m_var_value_fr)
+        if (m_var_value_fr_thread)
         {
             for(int i=0;i<100;i++)
                 std::cout << "factory reset: sleeping" << std::endl;
@@ -1990,12 +1996,13 @@ OCEntityHandlerResult NmonResource::entityHandler(std::shared_ptr<OCResourceRequ
                     if (ehResult == OC_EH_OK)
                     {
                         pResponse->setResourceRepresentation(get(queries), "");
+                        OC_VERIFY(OCPlatform::sendResponse(pResponse) == OC_STACK_OK);
                     }
                     else
                     {
                          pResponse->setResponseResult(OCEntityHandlerResult::OC_EH_ERROR);
                     }
-                    OC_VERIFY(OCPlatform::sendResponse(pResponse) == OC_STACK_OK);
+                    //OC_VERIFY(OCPlatform::sendResponse(pResponse) == OC_STACK_OK);
                 }
             }
             else
